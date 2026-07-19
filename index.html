@@ -225,14 +225,15 @@
 <body>
 <div class="app">
     <div class="header">
-        <h1>📄 方剂学 · PDF 文档库 <small>· 点击卡片弹窗预览</small></h1>
-        <div class="sub">⚡ 框架引用 · 弹窗中显示 PDF，网页源码仅保留文件名</div>
+        <h1>📄 方剂学 · PDF 文档库 <small>· 点击卡片在线预览</small></h1>
+        <div class="sub">⚡ 在线预览 · 无需下载，直接查看 PDF</div>
         <div class="stats" id="fileCount">共 0 个文件</div>
     </div>
     <div class="pdf-grid" id="pdfGrid"></div>
     <div class="footer-note">
-        <span>📌 点击任一 PDF 卡片，弹窗加载对应文件</span>
+        <span>📌 点击任一 PDF 卡片，弹窗在线预览</span>
         <span><code>PDF 文件夹</code> 与网页同目录 /pdf/</span>
+        <span style="color:#2f7bff;">✅ 直接在线查看，无需下载</span>
     </div>
 </div>
 
@@ -241,12 +242,12 @@
         <div class="modal-header">
             <div class="modal-title">
                 📎 <span class="file-name-display" id="modalFileName">文件名称</span>
-                <span class="badge">PDF</span>
+                <span class="badge">在线预览</span>
             </div>
             <button class="modal-close" id="modalCloseBtn">✕</button>
         </div>
         <div class="modal-body">
-            <iframe id="modalPdfFrame" src="" title="PDF 预览"></iframe>
+            <iframe id="modalPdfFrame" src="" title="PDF 在线预览"></iframe>
         </div>
     </div>
 </div>
@@ -254,6 +255,8 @@
 <script>
     (function() {
         const PDF_BASE = 'pdf/';
+        const SITE_URL = 'https://123wanyou.github.io/fangji-pdf/';
+
         const pdfFiles = [
             { name: '辛温解表剂', file: 'xinwen.pdf.pdf' },
             { name: '辛凉解表剂', file: 'xinliang.pdf.pdf' },
@@ -306,9 +309,11 @@
 
         function openModal(file, name) {
             if (!file) return;
-            const url = PDF_BASE + encodeURIComponent(file);
-            console.log('📄 加载:', url);
-            frame.src = url;
+            // 使用 Google PDF Viewer 实现在线预览（无需下载）
+            const pdfUrl = SITE_URL + PDF_BASE + encodeURIComponent(file);
+            const viewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
+            console.log('📄 在线预览:', viewerUrl);
+            frame.src = viewerUrl;
             fileName.textContent = name;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -317,6 +322,8 @@
         function closeModal() {
             modal.classList.remove('active');
             document.body.style.overflow = '';
+            // 关闭时清空 iframe，避免残留
+            setTimeout(() => { frame.src = ''; }, 300);
         }
 
         closeBtn.addEventListener('click', closeModal);
@@ -324,7 +331,8 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
         render();
-        console.log('✅ 方剂学 PDF 弹窗预览已启动，共 ' + pdfFiles.length + ' 个文件');
+        console.log('✅ 方剂学 PDF 在线预览已启动，共 ' + pdfFiles.length + ' 个文件');
+        console.log('📌 点击卡片即可在线查看 PDF，无需下载');
     })();
 </script>
 </body>
