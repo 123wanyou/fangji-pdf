@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>方剂学 · PDF 弹窗预览</title>
+    <title>方剂学 · PDF 文档库</title>
     <style>
         * {
             margin: 0;
@@ -83,8 +83,8 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            flex: 1 0 200px;
-            max-width: 320px;
+            flex: 1 0 180px;
+            max-width: 260px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .pdf-card:hover {
@@ -94,7 +94,7 @@
             box-shadow: 0 8px 20px rgba(47, 123, 255, 0.08);
         }
         .pdf-card .pdf-icon {
-            font-size: 26px;
+            font-size: 24px;
             opacity: 0.7;
             flex-shrink: 0;
         }
@@ -265,7 +265,7 @@
         <div class="stats" id="fileCount">共 0 个文件</div>
     </div>
 
-    <!-- PDF 卡片列表 (只显示名称，不包含任何 PDF 内容) -->
+    <!-- PDF 卡片列表 -->
     <div class="pdf-grid" id="pdfGrid">
         <!-- 由 JavaScript 动态渲染 -->
     </div>
@@ -308,33 +308,33 @@
         // PDF 文件夹相对路径 (与 index.html 同级)
         const PDF_BASE = './pdf/';
 
-        // ----- PDF 文件列表 (根据您提供的名称生成) -----
-        // 注意：文件名必须与 pdf 文件夹内的实际文件完全一致（包括扩展名 .pdf）
+        // ----- PDF 文件列表 -----
+        // 卡片显示中文名称，实际加载英文PDF文件名
         const pdfFiles = [
-            { name: '辛温解表剂_小兰精校八方', file: '辛温解表剂_小兰精校八方.pdf' },
-            { name: '辛凉解表剂_小兰精校六方', file: '辛凉解表剂_小兰精校六方.pdf' },
-            { name: '扶正解表剂_小兰精校六方', file: '扶正解表剂_小兰精校六方.pdf' },
-            { name: '泻下剂_小兰精校十二方', file: '泻下剂_小兰精校十二方.pdf' },
-            { name: '和解剂_小兰精校九方', file: '和解剂_小兰精校九方.pdf' },
-            { name: '清热剂（一）_小兰精校八方', file: '清热剂（一）_小兰精校八方.pdf' },
-            { name: '清热剂（二）_小兰精校十一主方', file: '清热剂（二）_小兰精校十一主方.pdf' },
-            { name: '祛暑剂_小兰精校六方', file: '祛暑剂_小兰精校六方.pdf' },
-            { name: '温里剂_小兰精校九方', file: '温里剂_小兰精校九方.pdf' },
-            { name: '表里双解剂_小兰精校五方', file: '表里双解剂_小兰精校五方.pdf' },
-            { name: '补益剂_小兰精校十一方', file: '补益剂_小兰精校十一方.pdf' },
-            { name: '补益剂_补阴补阳阴阳并补_小兰精校', file: '补益剂_补阴补阳阴阳并补_小兰精校.pdf' },
-            { name: '固涩剂_小兰精校十二方', file: '固涩剂_小兰精校十二方.pdf' },
-            { name: '安神剂_小兰精校十方', file: '安神剂_小兰精校十方.pdf' },
-            { name: '开窍剂_小兰精校五方', file: '开窍剂_小兰精校五方.pdf' },
-            { name: '理气剂_小兰精校十六方', file: '理气剂_小兰精校十六方.pdf' },
-            { name: '理血剂_小兰精校十五方', file: '理血剂_小兰精校十五方.pdf' },
-            { name: '治风剂_小兰精校十一方', file: '治风剂_小兰精校十一方.pdf' },
-            { name: '治燥剂_小兰精校九方', file: '治燥剂_小兰精校九方.pdf' },
-            { name: '祛湿剂_小兰精校二十一方', file: '祛湿剂_小兰精校二十一方.pdf' },
-            { name: '祛痰剂_小兰精校十一方', file: '祛痰剂_小兰精校十一方.pdf' },
-            { name: '消食剂_小兰精校五方', file: '消食剂_小兰精校五方.pdf' },
-            { name: '驱虫剂+涌吐剂_小兰精校六主方', file: '驱虫剂+涌吐剂_小兰精校六主方.pdf' },
-            { name: '治痈疡剂_小兰精校十三主方', file: '治痈疡剂_小兰精校十三主方.pdf' }
+            { name: '辛温解表剂', file: 'xinwen.pdf' },
+            { name: '辛凉解表剂', file: 'xinliang.pdf' },
+            { name: '扶正解表剂', file: 'fuzheng.pdf' },
+            { name: '泻下剂', file: 'xiexia.pdf' },
+            { name: '和解剂', file: 'hejie.pdf' },
+            { name: '清热剂一', file: 'qingre1.pdf' },
+            { name: '清热剂二', file: 'qingre2.pdf' },
+            { name: '祛暑剂', file: 'qushu.pdf' },
+            { name: '温里剂', file: 'wenli.pdf' },
+            { name: '表里双解剂', file: 'biaoli.pdf' },
+            { name: '补益剂一', file: 'buyi1.pdf' },
+            { name: '补益剂二', file: 'buyi2.pdf' },
+            { name: '固涩剂', file: 'guse.pdf' },
+            { name: '安神剂', file: 'anshen.pdf' },
+            { name: '开窍剂', file: 'kaiqiao.pdf' },
+            { name: '理气剂', file: 'liqi.pdf' },
+            { name: '理血剂', file: 'lixue.pdf' },
+            { name: '治风剂', file: 'zhifeng.pdf' },
+            { name: '治燥剂', file: 'zhizao.pdf' },
+            { name: '祛湿剂', file: 'qushi.pdf' },
+            { name: '祛痰剂', file: 'qutan.pdf' },
+            { name: '消食剂', file: 'xiaoshi.pdf' },
+            { name: '驱虫剂涌吐剂', file: 'quchong.pdf' },
+            { name: '治痈疡剂', file: 'zhiyong.pdf' }
         ];
 
         // DOM 元素
@@ -345,7 +345,7 @@
         const modalFileName = document.getElementById('modalFileName');
         const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-        // ----- 渲染卡片列表 (只有名称, 无任何 PDF 内容) -----
+        // ----- 渲染卡片列表 -----
         function renderCards() {
             gridEl.innerHTML = '';
             pdfFiles.forEach((item) => {
@@ -369,7 +369,6 @@
                 badge.textContent = 'PDF';
                 card.appendChild(badge);
 
-                // 点击卡片 -> 弹出弹窗
                 card.addEventListener('click', function(e) {
                     const file = this.dataset.file;
                     const name = this.dataset.name;
@@ -379,11 +378,10 @@
                 gridEl.appendChild(card);
             });
 
-            // 更新文件数量
             fileCountEl.textContent = `共 ${pdfFiles.length} 个文件`;
         }
 
-        // ----- 打开弹窗 (加载 PDF) -----
+        // ----- 打开弹窗 -----
         function openModal(file, name) {
             if (!file) return;
             const pdfUrl = PDF_BASE + encodeURIComponent(file);
@@ -397,8 +395,6 @@
         function closeModal() {
             modalOverlay.classList.remove('active');
             document.body.style.overflow = '';
-            // 可选：延迟清空 src，避免关闭后仍加载
-            // 这里保留 src，下次打开会重新设置
         }
 
         // ----- 事件绑定 -----
@@ -419,18 +415,9 @@
         // 渲染
         renderCards();
 
-        console.log('✅ 方剂学 PDF 弹窗预览已启动。所有 PDF 位于 ./pdf/ 目录');
+        console.log('✅ 方剂学 PDF 弹窗预览已启动');
         console.log(`📁 共 ${pdfFiles.length} 个文件`);
-        console.log('📌 点击卡片弹出窗口，框架引用 PDF，源码不包含内容。');
     })();
 </script>
-
-<!-- 
-    部署说明：
-    1. 将本文件保存为 index.html
-    2. 在同级目录下创建 pdf 文件夹
-    3. 将所有 PDF 文件放入 pdf 文件夹，文件名必须与代码中的 file 字段完全一致
-    4. 部署到 GitHub Pages 或任何静态服务器即可使用
--->
 </body>
 </html>
