@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>方剂学 · PDF 文档库</title>
-    <!-- PDF.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+    <!-- 使用国内 CDN（BootCDN），手机访问更快 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/pdf.js/3.11.174/pdf.min.js">
     </script>
     <style>
         * {
@@ -13,14 +13,12 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fb;
             min-height: 100vh;
             padding: 24px 20px;
         }
-
         .app {
             max-width: 1300px;
             margin: 0 auto;
@@ -29,11 +27,9 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
             padding: 28px 32px 32px 32px;
         }
-
         .header {
             margin-bottom: 24px;
         }
-
         .header h1 {
             font-weight: 600;
             font-size: 26px;
@@ -43,13 +39,11 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-
         .header h1 small {
             font-weight: 400;
             font-size: 15px;
             color: #5e6f8d;
         }
-
         .header .sub {
             color: #5e6f8d;
             font-size: 14px;
@@ -61,7 +55,6 @@
             display: inline-block;
             padding: 5px 16px 5px 14px;
         }
-
         .stats {
             margin-top: 14px;
             font-size: 14px;
@@ -71,14 +64,12 @@
             border-radius: 40px;
             display: inline-block;
         }
-
         .pdf-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 16px;
         }
-
         .pdf-card {
             background: #fafcff;
             border: 1px solid #e9edf4;
@@ -92,26 +83,22 @@
             flex: 1 0 180px;
             max-width: 260px;
         }
-
         .pdf-card:hover {
             background: #eef4fe;
             border-color: #b8cef0;
             transform: translateY(-2px);
             box-shadow: 0 8px 20px rgba(47, 123, 255, 0.08);
         }
-
         .pdf-card .pdf-icon {
             font-size: 24px;
             opacity: 0.7;
             flex-shrink: 0;
         }
-
         .pdf-card .pdf-name {
             font-weight: 500;
             font-size: 14px;
             color: #1f2a44;
         }
-
         .pdf-card .pdf-badge {
             margin-left: auto;
             font-size: 11px;
@@ -121,7 +108,6 @@
             border-radius: 30px;
             flex-shrink: 0;
         }
-
         .footer-note {
             margin-top: 28px;
             font-size: 13px;
@@ -132,7 +118,6 @@
             gap: 20px;
             flex-wrap: wrap;
         }
-
         .footer-note code {
             background: #edf2fa;
             padding: 2px 12px;
@@ -141,7 +126,6 @@
             color: #1f3a6b;
         }
 
-        /* ====== 弹窗 ====== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -156,11 +140,9 @@
             z-index: 9999;
             padding: 20px;
         }
-
         .modal-overlay.active {
             display: flex;
         }
-
         .modal-box {
             background: white;
             border-radius: 28px;
@@ -173,7 +155,6 @@
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
-
         .modal-header {
             padding: 14px 24px;
             border-bottom: 1px solid #eef2f6;
@@ -183,7 +164,6 @@
             flex-shrink: 0;
             background: #fafcff;
         }
-
         .modal-header .modal-title {
             font-weight: 600;
             font-size: 17px;
@@ -193,13 +173,11 @@
             gap: 10px;
             max-width: 80%;
         }
-
         .modal-header .modal-title .file-name-display {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-
         .modal-header .modal-title span.badge {
             background: #eef4fe;
             padding: 2px 14px;
@@ -209,7 +187,6 @@
             color: #2f5a9c;
             flex-shrink: 0;
         }
-
         .modal-close {
             background: none;
             border: 0;
@@ -224,12 +201,10 @@
             align-items: center;
             flex-shrink: 0;
         }
-
         .modal-close:hover {
             background: #f0f2f6;
             color: #1f2a44;
         }
-
         .modal-body {
             flex: 1;
             background: #e8ecf3;
@@ -240,8 +215,6 @@
             align-items: flex-start;
             min-height: 0;
         }
-
-        /* PDF 画布容器 - 自适应宽度 */
         .pdf-canvas-wrapper {
             display: flex;
             justify-content: center;
@@ -249,7 +222,6 @@
             width: 100%;
             min-height: 100%;
         }
-
         #pdfCanvas {
             max-width: 100%;
             height: auto;
@@ -258,21 +230,18 @@
             border-radius: 6px;
             display: none;
         }
-
         .pdf-loading {
             color: #4a5b7a;
             font-size: 16px;
             padding: 60px 0;
             text-align: center;
         }
-
         .pdf-error {
             color: #d32f2f;
             font-size: 16px;
             padding: 60px 0;
             text-align: center;
         }
-
         .pdf-controls {
             display: none;
             justify-content: center;
@@ -284,11 +253,9 @@
             flex-shrink: 0;
             flex-wrap: wrap;
         }
-
         .pdf-controls.show {
             display: flex;
         }
-
         .pdf-controls button {
             background: #eef2f8;
             border: none;
@@ -300,23 +267,19 @@
             transition: 0.15s;
             font-weight: 500;
         }
-
         .pdf-controls button:hover:not(:disabled) {
             background: #d6e0ee;
         }
-
         .pdf-controls button:disabled {
             opacity: 0.35;
             cursor: not-allowed;
         }
-
         .pdf-controls .page-info {
             font-size: 14px;
             color: #3d4e6b;
             min-width: 70px;
             text-align: center;
         }
-
         .pdf-controls .zoom-control {
             display: flex;
             align-items: center;
@@ -325,13 +288,11 @@
             color: #5e6f8d;
             font-size: 13px;
         }
-
         .pdf-controls .zoom-control button {
             padding: 4px 14px;
             font-size: 16px;
             min-width: 36px;
         }
-
         @media (max-width: 640px) {
             .app {
                 padding: 16px;
@@ -375,7 +336,6 @@
         </div>
     </div>
 
-    <!-- ====== 弹窗 ====== -->
     <div class="modal-overlay" id="pdfModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -406,9 +366,9 @@
 
     <script>
         (function() {
-            // 配置 PDF.js Worker
+            // 使用国内 CDN 的 Worker
             pdfjsLib.GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+                'https://cdn.bootcdn.net/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
             const PDF_BASE = 'pdf/';
             const SITE_URL = 'https://123wanyou.github.io/fangji-pdf/';
@@ -440,7 +400,6 @@
                 { name: '治痈疡剂', file: 'zhiyong.pdf.pdf' }
             ];
 
-            // DOM 元素
             const grid = document.getElementById('pdfGrid');
             const count = document.getElementById('fileCount');
             const modal = document.getElementById('pdfModal');
@@ -459,11 +418,10 @@
             let pdfDoc = null;
             let currentPage = 1;
             let totalPages = 0;
-            let currentScale = 1.8; // 基础缩放，提高清晰度
+            let currentScale = 1.8;
             let maxScale = 3.5;
             let minScale = 0.8;
 
-            // 渲染卡片列表
             function renderCards() {
                 grid.innerHTML = '';
                 pdfFiles.forEach(item => {
@@ -480,14 +438,12 @@
                 count.textContent = `共 ${pdfFiles.length} 个文件`;
             }
 
-            // 打开弹窗并加载 PDF
             function openModal(file, name) {
                 if (!file) return;
 
                 const pdfUrl = SITE_URL + PDF_BASE + encodeURIComponent(file);
                 fileName.textContent = name;
 
-                // 重置状态
                 controls.classList.remove('show');
                 loading.style.display = 'block';
                 loading.className = 'pdf-loading';
@@ -515,12 +471,10 @@
                     });
             }
 
-            // 渲染指定页
             function renderPage(pageNum) {
                 if (!pdfDoc) return;
 
                 pdfDoc.getPage(pageNum).then(function(page) {
-                    // 使用当前缩放比例
                     const viewport = page.getViewport({ scale: currentScale });
                     canvas.width = viewport.width;
                     canvas.height = viewport.height;
@@ -543,7 +497,6 @@
                 });
             }
 
-            // 缩放功能
             function updateZoom() {
                 if (!pdfDoc) return;
                 zoomLevel.textContent = Math.round(currentScale * 50) + '%';
@@ -564,7 +517,6 @@
                 }
             });
 
-            // 关闭弹窗
             function closeModal() {
                 modal.classList.remove('active');
                 document.body.style.overflow = '';
@@ -576,7 +528,6 @@
                 loading.textContent = '⏳ 正在加载 PDF...';
             }
 
-            // 事件绑定
             closeBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) closeModal();
@@ -607,10 +558,9 @@
                 }
             });
 
-            // 启动
             renderCards();
             console.log('✅ 方剂学 PDF 高清在线预览已启动，共 ' + pdfFiles.length + ' 个文件');
-            console.log('📌 使用 PDF.js 渲染，支持缩放，高清显示');
+            console.log('📌 使用国内 CDN，手机访问更稳定');
         })();
     </script>
 
