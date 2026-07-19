@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方剂学 · PDF 弹窗预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f5f7fb;
+            min-height: 100vh;
+            padding: 24px 20px;
+        }
+        .app {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            padding: 28px 32px 32px 32px;
+        }
+        .header {
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-weight: 600;
+            font-size: 26px;
+            letter-spacing: -0.01em;
+            color: #0b1b2f;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .header h1 small {
+            font-weight: 400;
+            font-size: 15px;
+            color: #5e6f8d;
+            margin-left: 4px;
+        }
+        .header .sub {
+            color: #5e6f8d;
+            font-size: 14px;
+            margin-top: 6px;
+            border-left: 3px solid #2f7bff;
+            padding-left: 14px;
+            background: #f0f5ff;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.5;
+            display: inline-block;
+            padding: 5px 16px 5px 14px;
+        }
+        .stats {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #3d4e6b;
+            background: #f4f7fd;
+            padding: 8px 18px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        .pdf-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+        .pdf-card {
+            background: #fafcff;
+            border: 1px solid #e9edf4;
+            border-radius: 20px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1 0 200px;
+            max-width: 320px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .pdf-card:hover {
+            background: #eef4fe;
+            border-color: #b8cef0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(47, 123, 255, 0.08);
+        }
+        .pdf-card .pdf-icon {
+            font-size: 26px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+        .pdf-card .pdf-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #1f2a44;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+        .pdf-card .pdf-badge {
+            margin-left: auto;
+            font-size: 11px;
+            color: #6b7a99;
+            background: #eef2f8;
+            padding: 2px 10px;
+            border-radius: 30px;
+            flex-shrink: 0;
+        }
+
+        .footer-note {
+            margin-top: 28px;
+            font-size: 13px;
+            color: #7a89aa;
+            border-top: 1px solid #eef2f8;
+            padding-top: 18px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .footer-note code {
+            background: #edf2fa;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #1f3a6b;
+        }
+
+        /* ---------- 弹窗 (Modal) ---------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: #ffffff;
+            border-radius: 28px;
+            max-width: 920px;
+            width: 100%;
+            height: 90vh;
+            max-height: 820px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.25s ease;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            background: #fafcff;
+        }
+        .modal-header .modal-title {
+            font-weight: 600;
+            font-size: 17px;
+            color: #0b1b2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 80%;
+        }
+        .modal-header .modal-title .file-name-display {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .modal-header .modal-title span.badge {
+            background: #eef4fe;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #2f5a9c;
+            flex-shrink: 0;
+        }
+        .modal-close {
+            background: none;
+            border: 0;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b7a99;
+            transition: 0.15s;
+            width: 40px;
+            height: 40px;
+            border-radius: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .modal-close:hover {
+            background: #f0f2f6;
+            color: #1f2a44;
+        }
+        .modal-body {
+            flex: 1;
+            background: #f1f4fa;
+            padding: 12px;
+            overflow: hidden;
+        }
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 640px) {
+            .app { padding: 16px; }
+            .pdf-card { flex: 1 0 140px; max-width: 100%; }
+            .modal-box { max-height: 95vh; height: 95vh; }
+            .modal-header .modal-title { font-size: 15px; }
+        }
+        @media (max-width: 480px) {
+            .pdf-card { padding: 12px 14px; }
+            .pdf-card .pdf-name { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>
+            📄 方剂学 · PDF 文档库
+            <small>· 点击卡片弹窗预览</small>
+        </h1>
+        <div class="sub">
+            ⚡ 框架引用 · 弹窗中显示 PDF，网页源码仅保留文件名
+        </div>
+        <div class="stats" id="fileCount">共 0 个文件</div>
+    </div>
+
+    <!-- PDF 卡片列表 (只显示名称，不包含任何 PDF 内容) -->
+    <div class="pdf-grid" id="pdfGrid">
+        <!-- 由 JavaScript 动态渲染 -->
+    </div>
+
+    <div class="footer-note">
+        <span>📌 点击任一 PDF 卡片，弹窗加载对应文件</span>
+        <span><code>PDF 文件夹</code> 与网页同目录 /pdf/</span>
+        <span style="opacity:0.6;">✅ 弹窗内嵌 iframe · 源码不可见 PDF 内容</span>
+    </div>
+</div>
+
+<!-- ========== 弹窗 (Modal) ========== -->
+<div class="modal-overlay" id="pdfModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-title" id="modalTitle">
+                📎 <span class="file-name-display" id="modalFileName">文件名称</span>
+                <span class="badge">PDF</span>
+            </div>
+            <button class="modal-close" id="modalCloseBtn" aria-label="关闭弹窗">✕</button>
+        </div>
+        <div class="modal-body">
+            <iframe id="modalPdfFrame" 
+                    src="" 
+                    title="PDF 预览弹窗"
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                    referrerpolicy="no-referrer">
+                <div style="padding:40px;text-align:center;color:#6b7a99;">
+                    ⚠️ 您的浏览器不支持 iframe 预览
+                </div>
+            </iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ----- 配置 -----
+        // PDF 文件夹相对路径 (与 index.html 同级)
+        const PDF_BASE = './pdf/';
+
+        // ----- PDF 文件列表 (根据您提供的名称生成) -----
+        // 注意：文件名必须与 pdf 文件夹内的实际文件完全一致（包括扩展名 .pdf）
+        const pdfFiles = [
+            { name: '辛温解表剂_小兰精校八方', file: '辛温解表剂_小兰精校八方.pdf' },
+            { name: '辛凉解表剂_小兰精校六方', file: '辛凉解表剂_小兰精校六方.pdf' },
+            { name: '扶正解表剂_小兰精校六方', file: '扶正解表剂_小兰精校六方.pdf' },
+            { name: '泻下剂_小兰精校十二方', file: '泻下剂_小兰精校十二方.pdf' },
+            { name: '和解剂_小兰精校九方', file: '和解剂_小兰精校九方.pdf' },
+            { name: '清热剂（一）_小兰精校八方', file: '清热剂（一）_小兰精校八方.pdf' },
+            { name: '清热剂（二）_小兰精校十一主方', file: '清热剂（二）_小兰精校十一主方.pdf' },
+            { name: '祛暑剂_小兰精校六方', file: '祛暑剂_小兰精校六方.pdf' },
+            { name: '温里剂_小兰精校九方', file: '温里剂_小兰精校九方.pdf' },
+            { name: '表里双解剂_小兰精校五方', file: '表里双解剂_小兰精校五方.pdf' },
+            { name: '补益剂_小兰精校十一方', file: '补益剂_小兰精校十一方.pdf' },
+            { name: '补益剂_补阴补阳阴阳并补_小兰精校', file: '补益剂_补阴补阳阴阳并补_小兰精校.pdf' },
+            { name: '固涩剂_小兰精校十二方', file: '固涩剂_小兰精校十二方.pdf' },
+            { name: '安神剂_小兰精校十方', file: '安神剂_小兰精校十方.pdf' },
+            { name: '开窍剂_小兰精校五方', file: '开窍剂_小兰精校五方.pdf' },
+            { name: '理气剂_小兰精校十六方', file: '理气剂_小兰精校十六方.pdf' },
+            { name: '理血剂_小兰精校十五方', file: '理血剂_小兰精校十五方.pdf' },
+            { name: '治风剂_小兰精校十一方', file: '治风剂_小兰精校十一方.pdf' },
+            { name: '治燥剂_小兰精校九方', file: '治燥剂_小兰精校九方.pdf' },
+            { name: '祛湿剂_小兰精校二十一方', file: '祛湿剂_小兰精校二十一方.pdf' },
+            { name: '祛痰剂_小兰精校十一方', file: '祛痰剂_小兰精校十一方.pdf' },
+            { name: '消食剂_小兰精校五方', file: '消食剂_小兰精校五方.pdf' },
+            { name: '驱虫剂+涌吐剂_小兰精校六主方', file: '驱虫剂+涌吐剂_小兰精校六主方.pdf' },
+            { name: '治痈疡剂_小兰精校十三主方', file: '治痈疡剂_小兰精校十三主方.pdf' }
+        ];
+
+        // DOM 元素
+        const gridEl = document.getElementById('pdfGrid');
+        const fileCountEl = document.getElementById('fileCount');
+        const modalOverlay = document.getElementById('pdfModal');
+        const modalFrame = document.getElementById('modalPdfFrame');
+        const modalFileName = document.getElementById('modalFileName');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        // ----- 渲染卡片列表 (只有名称, 无任何 PDF 内容) -----
+        function renderCards() {
+            gridEl.innerHTML = '';
+            pdfFiles.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'pdf-card';
+                card.dataset.file = item.file;
+                card.dataset.name = item.name;
+
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'pdf-icon';
+                iconSpan.textContent = '📄';
+                card.appendChild(iconSpan);
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'pdf-name';
+                nameSpan.textContent = item.name;
+                card.appendChild(nameSpan);
+
+                const badge = document.createElement('span');
+                badge.className = 'pdf-badge';
+                badge.textContent = 'PDF';
+                card.appendChild(badge);
+
+                // 点击卡片 -> 弹出弹窗
+                card.addEventListener('click', function(e) {
+                    const file = this.dataset.file;
+                    const name = this.dataset.name;
+                    openModal(file, name);
+                });
+
+                gridEl.appendChild(card);
+            });
+
+            // 更新文件数量
+            fileCountEl.textContent = `共 ${pdfFiles.length} 个文件`;
+        }
+
+        // ----- 打开弹窗 (加载 PDF) -----
+        function openModal(file, name) {
+            if (!file) return;
+            const pdfUrl = PDF_BASE + encodeURIComponent(file);
+            modalFrame.src = pdfUrl;
+            modalFileName.textContent = name;
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ----- 关闭弹窗 -----
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+            // 可选：延迟清空 src，避免关闭后仍加载
+            // 这里保留 src，下次打开会重新设置
+        }
+
+        // ----- 事件绑定 -----
+        modalCloseBtn.addEventListener('click', closeModal);
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // 渲染
+        renderCards();
+
+        console.log('✅ 方剂学 PDF 弹窗预览已启动。所有 PDF 位于 ./pdf/ 目录');
+        console.log(`📁 共 ${pdfFiles.length} 个文件`);
+        console.log('📌 点击卡片弹出窗口，框架引用 PDF，源码不包含内容。');
+    })();
+</script>
+
+<!-- 
+    部署说明：
+    1. 将本文件保存为 index.html
+    2. 在同级目录下创建 pdf 文件夹
+    3. 将所有 PDF 文件放入 pdf 文件夹，文件名必须与代码中的 file 字段完全一致
+    4. 部署到 GitHub Pages 或任何静态服务器即可使用
+-->
+</body>
+</html>
