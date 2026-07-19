@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>方剂学 · PDF 文档库</title>
     <style>
         * {
@@ -11,7 +11,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fb;
             min-height: 100vh;
             padding: 24px 20px;
@@ -21,8 +21,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
             padding: 28px 32px 32px 32px;
         }
         .header {
@@ -31,7 +30,6 @@
         .header h1 {
             font-weight: 600;
             font-size: 26px;
-            letter-spacing: -0.01em;
             color: #0b1b2f;
             display: flex;
             align-items: center;
@@ -42,7 +40,6 @@
             font-weight: 400;
             font-size: 15px;
             color: #5e6f8d;
-            margin-left: 4px;
         }
         .header .sub {
             color: #5e6f8d;
@@ -52,7 +49,6 @@
             padding-left: 14px;
             background: #f0f5ff;
             border-radius: 0 8px 8px 0;
-            line-height: 1.5;
             display: inline-block;
             padding: 5px 16px 5px 14px;
         }
@@ -65,13 +61,11 @@
             border-radius: 40px;
             display: inline-block;
         }
-
         .pdf-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 16px;
-            margin-bottom: 8px;
         }
         .pdf-card {
             background: #fafcff;
@@ -85,13 +79,12 @@
             gap: 12px;
             flex: 1 0 180px;
             max-width: 260px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .pdf-card:hover {
             background: #eef4fe;
             border-color: #b8cef0;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(47, 123, 255, 0.08);
+            box-shadow: 0 8px 20px rgba(47,123,255,0.08);
         }
         .pdf-card .pdf-icon {
             font-size: 24px;
@@ -102,8 +95,6 @@
             font-weight: 500;
             font-size: 14px;
             color: #1f2a44;
-            word-break: break-word;
-            line-height: 1.4;
         }
         .pdf-card .pdf-badge {
             margin-left: auto;
@@ -114,7 +105,6 @@
             border-radius: 30px;
             flex-shrink: 0;
         }
-
         .footer-note {
             margin-top: 28px;
             font-size: 13px;
@@ -133,27 +123,25 @@
             color: #1f3a6b;
         }
 
-        /* ---------- 弹窗 (Modal) ---------- */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.45);
+            background: rgba(0,0,0,0.45);
             backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             padding: 20px;
-            animation: fadeIn 0.2s ease;
         }
         .modal-overlay.active {
             display: flex;
         }
         .modal-box {
-            background: #ffffff;
+            background: white;
             border-radius: 28px;
             max-width: 920px;
             width: 100%;
@@ -161,8 +149,7 @@
             max-height: 820px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
-            animation: slideUp 0.25s ease;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.25);
             overflow: hidden;
         }
         .modal-header {
@@ -203,7 +190,6 @@
             font-size: 28px;
             cursor: pointer;
             color: #6b7a99;
-            transition: 0.15s;
             width: 40px;
             height: 40px;
             border-radius: 40px;
@@ -228,88 +214,46 @@
             border: 0;
             border-radius: 16px;
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         @media (max-width: 640px) {
             .app { padding: 16px; }
             .pdf-card { flex: 1 0 140px; max-width: 100%; }
             .modal-box { max-height: 95vh; height: 95vh; }
-            .modal-header .modal-title { font-size: 15px; }
-        }
-        @media (max-width: 480px) {
-            .pdf-card { padding: 12px 14px; }
-            .pdf-card .pdf-name { font-size: 13px; }
         }
     </style>
 </head>
 <body>
 <div class="app">
     <div class="header">
-        <h1>
-            📄 方剂学 · PDF 文档库
-            <small>· 点击卡片弹窗预览</small>
-        </h1>
-        <div class="sub">
-            ⚡ 框架引用 · 弹窗中显示 PDF，网页源码仅保留文件名
-        </div>
+        <h1>📄 方剂学 · PDF 文档库 <small>· 点击卡片弹窗预览</small></h1>
+        <div class="sub">⚡ 框架引用 · 弹窗中显示 PDF，网页源码仅保留文件名</div>
         <div class="stats" id="fileCount">共 0 个文件</div>
     </div>
-
-    <!-- PDF 卡片列表 -->
-    <div class="pdf-grid" id="pdfGrid">
-        <!-- 由 JavaScript 动态渲染 -->
-    </div>
-
+    <div class="pdf-grid" id="pdfGrid"></div>
     <div class="footer-note">
         <span>📌 点击任一 PDF 卡片，弹窗加载对应文件</span>
         <span><code>PDF 文件夹</code> 与网页同目录 /pdf/</span>
-        <span style="opacity:0.6;">✅ 弹窗内嵌 iframe · 源码不可见 PDF 内容</span>
     </div>
 </div>
 
-<!-- ========== 弹窗 (Modal) ========== -->
 <div class="modal-overlay" id="pdfModal">
     <div class="modal-box">
         <div class="modal-header">
-            <div class="modal-title" id="modalTitle">
+            <div class="modal-title">
                 📎 <span class="file-name-display" id="modalFileName">文件名称</span>
                 <span class="badge">PDF</span>
             </div>
-            <button class="modal-close" id="modalCloseBtn" aria-label="关闭弹窗">✕</button>
+            <button class="modal-close" id="modalCloseBtn">✕</button>
         </div>
         <div class="modal-body">
-            <iframe id="modalPdfFrame" 
-                    src="" 
-                    title="PDF 预览弹窗"
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-                    referrerpolicy="no-referrer">
-                <div style="padding:40px;text-align:center;color:#6b7a99;">
-                    ⚠️ 您的浏览器不支持 iframe 预览
-                </div>
-            </iframe>
+            <iframe id="modalPdfFrame" src="" title="PDF 预览"></iframe>
         </div>
     </div>
 </div>
 
 <script>
     (function() {
-        // ----- 配置 -----
-        // PDF 文件夹相对路径 (与 index.html 同级)
-        const PDF_BASE = './pdf/';
-
-        // ----- PDF 文件列表 -----
-        // 卡片显示中文名称，实际加载英文PDF文件名（匹配您的 .pdf.pdf 文件）
+        const PDF_BASE = 'pdf/';
         const pdfFiles = [
             { name: '辛温解表剂', file: 'xinwen.pdf.pdf' },
             { name: '辛凉解表剂', file: 'xinliang.pdf.pdf' },
@@ -337,86 +281,50 @@
             { name: '治痈疡剂', file: 'zhiyong.pdf.pdf' }
         ];
 
-        // DOM 元素
-        const gridEl = document.getElementById('pdfGrid');
-        const fileCountEl = document.getElementById('fileCount');
-        const modalOverlay = document.getElementById('pdfModal');
-        const modalFrame = document.getElementById('modalPdfFrame');
-        const modalFileName = document.getElementById('modalFileName');
-        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const grid = document.getElementById('pdfGrid');
+        const count = document.getElementById('fileCount');
+        const modal = document.getElementById('pdfModal');
+        const frame = document.getElementById('modalPdfFrame');
+        const fileName = document.getElementById('modalFileName');
+        const closeBtn = document.getElementById('modalCloseBtn');
 
-        // ----- 渲染卡片列表 -----
-        function renderCards() {
-            gridEl.innerHTML = '';
-            pdfFiles.forEach((item) => {
+        function render() {
+            grid.innerHTML = '';
+            pdfFiles.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'pdf-card';
-                card.dataset.file = item.file;
-                card.dataset.name = item.name;
-
-                const iconSpan = document.createElement('span');
-                iconSpan.className = 'pdf-icon';
-                iconSpan.textContent = '📄';
-                card.appendChild(iconSpan);
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'pdf-name';
-                nameSpan.textContent = item.name;
-                card.appendChild(nameSpan);
-
-                const badge = document.createElement('span');
-                badge.className = 'pdf-badge';
-                badge.textContent = 'PDF';
-                card.appendChild(badge);
-
-                card.addEventListener('click', function(e) {
-                    const file = this.dataset.file;
-                    const name = this.dataset.name;
-                    openModal(file, name);
-                });
-
-                gridEl.appendChild(card);
+                card.innerHTML = `
+                    <span class="pdf-icon">📄</span>
+                    <span class="pdf-name">${item.name}</span>
+                    <span class="pdf-badge">PDF</span>
+                `;
+                card.addEventListener('click', () => openModal(item.file, item.name));
+                grid.appendChild(card);
             });
-
-            fileCountEl.textContent = `共 ${pdfFiles.length} 个文件`;
+            count.textContent = `共 ${pdfFiles.length} 个文件`;
         }
 
-        // ----- 打开弹窗 -----
         function openModal(file, name) {
             if (!file) return;
-            const pdfUrl = PDF_BASE + encodeURIComponent(file);
-            modalFrame.src = pdfUrl;
-            modalFileName.textContent = name;
-            modalOverlay.classList.add('active');
+            const url = PDF_BASE + encodeURIComponent(file);
+            console.log('📄 加载:', url);
+            frame.src = url;
+            fileName.textContent = name;
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        // ----- 关闭弹窗 -----
         function closeModal() {
-            modalOverlay.classList.remove('active');
+            modal.classList.remove('active');
             document.body.style.overflow = '';
         }
 
-        // ----- 事件绑定 -----
-        modalCloseBtn.addEventListener('click', closeModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-        modalOverlay.addEventListener('click', function(e) {
-            if (e.target === modalOverlay) {
-                closeModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-                closeModal();
-            }
-        });
-
-        // 渲染
-        renderCards();
-
-        console.log('✅ 方剂学 PDF 弹窗预览已启动');
-        console.log(`📁 共 ${pdfFiles.length} 个文件`);
+        render();
+        console.log('✅ 方剂学 PDF 弹窗预览已启动，共 ' + pdfFiles.length + ' 个文件');
     })();
 </script>
 </body>
