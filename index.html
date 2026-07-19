@@ -4,29 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>方剂学 · PDF 文档库</title>
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+    </script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fb;
             min-height: 100vh;
             padding: 24px 20px;
         }
+
         .app {
             max-width: 1300px;
             margin: 0 auto;
             background: white;
             border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
             padding: 28px 32px 32px 32px;
         }
+
         .header {
             margin-bottom: 24px;
         }
+
         .header h1 {
             font-weight: 600;
             font-size: 26px;
@@ -36,11 +43,13 @@
             gap: 12px;
             flex-wrap: wrap;
         }
+
         .header h1 small {
             font-weight: 400;
             font-size: 15px;
             color: #5e6f8d;
         }
+
         .header .sub {
             color: #5e6f8d;
             font-size: 14px;
@@ -52,6 +61,7 @@
             display: inline-block;
             padding: 5px 16px 5px 14px;
         }
+
         .stats {
             margin-top: 14px;
             font-size: 14px;
@@ -61,12 +71,14 @@
             border-radius: 40px;
             display: inline-block;
         }
+
         .pdf-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 16px;
         }
+
         .pdf-card {
             background: #fafcff;
             border: 1px solid #e9edf4;
@@ -80,22 +92,26 @@
             flex: 1 0 180px;
             max-width: 260px;
         }
+
         .pdf-card:hover {
             background: #eef4fe;
             border-color: #b8cef0;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(47,123,255,0.08);
+            box-shadow: 0 8px 20px rgba(47, 123, 255, 0.08);
         }
+
         .pdf-card .pdf-icon {
             font-size: 24px;
             opacity: 0.7;
             flex-shrink: 0;
         }
+
         .pdf-card .pdf-name {
             font-weight: 500;
             font-size: 14px;
             color: #1f2a44;
         }
+
         .pdf-card .pdf-badge {
             margin-left: auto;
             font-size: 11px;
@@ -105,6 +121,7 @@
             border-radius: 30px;
             flex-shrink: 0;
         }
+
         .footer-note {
             margin-top: 28px;
             font-size: 13px;
@@ -115,6 +132,7 @@
             gap: 20px;
             flex-wrap: wrap;
         }
+
         .footer-note code {
             background: #edf2fa;
             padding: 2px 12px;
@@ -123,13 +141,14 @@
             color: #1f3a6b;
         }
 
+        /* ====== 弹窗 ====== */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.45);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
@@ -137,23 +156,26 @@
             z-index: 9999;
             padding: 20px;
         }
+
         .modal-overlay.active {
             display: flex;
         }
+
         .modal-box {
             background: white;
             border-radius: 28px;
-            max-width: 920px;
+            max-width: 1000px;
             width: 100%;
-            height: 90vh;
-            max-height: 820px;
+            height: 92vh;
+            max-height: 900px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
+
         .modal-header {
-            padding: 16px 24px;
+            padding: 14px 24px;
             border-bottom: 1px solid #eef2f6;
             display: flex;
             justify-content: space-between;
@@ -161,6 +183,7 @@
             flex-shrink: 0;
             background: #fafcff;
         }
+
         .modal-header .modal-title {
             font-weight: 600;
             font-size: 17px;
@@ -170,11 +193,13 @@
             gap: 10px;
             max-width: 80%;
         }
+
         .modal-header .modal-title .file-name-display {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         .modal-header .modal-title span.badge {
             background: #eef4fe;
             padding: 2px 14px;
@@ -184,6 +209,7 @@
             color: #2f5a9c;
             flex-shrink: 0;
         }
+
         .modal-close {
             background: none;
             border: 0;
@@ -198,142 +224,395 @@
             align-items: center;
             flex-shrink: 0;
         }
+
         .modal-close:hover {
             background: #f0f2f6;
             color: #1f2a44;
         }
+
         .modal-body {
             flex: 1;
-            background: #f1f4fa;
-            padding: 12px;
-            overflow: hidden;
+            background: #e8ecf3;
+            padding: 16px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 0;
         }
-        .modal-body iframe {
+
+        /* PDF 画布容器 - 自适应宽度 */
+        .pdf-canvas-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
             width: 100%;
-            height: 100%;
-            border: 0;
-            border-radius: 16px;
-            background: white;
+            min-height: 100%;
         }
+
+        #pdfCanvas {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+            background: white;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .pdf-loading {
+            color: #4a5b7a;
+            font-size: 16px;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .pdf-error {
+            color: #d32f2f;
+            font-size: 16px;
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .pdf-controls {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            padding: 12px 20px;
+            background: #fafcff;
+            border-top: 1px solid #eef2f6;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .pdf-controls.show {
+            display: flex;
+        }
+
+        .pdf-controls button {
+            background: #eef2f8;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #1f2a44;
+            transition: 0.15s;
+            font-weight: 500;
+        }
+
+        .pdf-controls button:hover:not(:disabled) {
+            background: #d6e0ee;
+        }
+
+        .pdf-controls button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .pdf-controls .page-info {
+            font-size: 14px;
+            color: #3d4e6b;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .pdf-controls .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            color: #5e6f8d;
+            font-size: 13px;
+        }
+
+        .pdf-controls .zoom-control button {
+            padding: 4px 14px;
+            font-size: 16px;
+            min-width: 36px;
+        }
+
         @media (max-width: 640px) {
-            .app { padding: 16px; }
-            .pdf-card { flex: 1 0 140px; max-width: 100%; }
-            .modal-box { max-height: 95vh; height: 95vh; }
+            .app {
+                padding: 16px;
+            }
+            .pdf-card {
+                flex: 1 0 140px;
+                max-width: 100%;
+            }
+            .modal-box {
+                max-height: 96vh;
+                height: 96vh;
+                border-radius: 20px;
+            }
+            .modal-body {
+                padding: 10px;
+            }
+            .pdf-controls {
+                gap: 10px;
+                padding: 10px 14px;
+            }
+            .pdf-controls button {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
         }
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="header">
-        <h1>📄 方剂学 · PDF 文档库 <small>· 点击卡片在线预览</small></h1>
-        <div class="sub">⚡ 在线预览 · 无需下载，直接查看 PDF</div>
-        <div class="stats" id="fileCount">共 0 个文件</div>
-    </div>
-    <div class="pdf-grid" id="pdfGrid"></div>
-    <div class="footer-note">
-        <span>📌 点击任一 PDF 卡片，弹窗在线预览</span>
-        <span><code>PDF 文件夹</code> 与网页同目录 /pdf/</span>
-        <span style="color:#2f7bff;">✅ 直接在线查看，无需下载</span>
-    </div>
-</div>
 
-<div class="modal-overlay" id="pdfModal">
-    <div class="modal-box">
-        <div class="modal-header">
-            <div class="modal-title">
-                📎 <span class="file-name-display" id="modalFileName">文件名称</span>
-                <span class="badge">在线预览</span>
+    <div class="app">
+        <div class="header">
+            <h1>📄 方剂学 · PDF 文档库 <small>· 点击卡片在线预览</small></h1>
+            <div class="sub">⚡ 高清渲染 · 完整显示 · 无需下载</div>
+            <div class="stats" id="fileCount">共 0 个文件</div>
+        </div>
+        <div class="pdf-grid" id="pdfGrid"></div>
+        <div class="footer-note">
+            <span>📌 点击任一 PDF 卡片，弹窗在线预览</span>
+            <span><code>PDF 文件夹</code> 与网页同目录 /pdf/</span>
+            <span style="color:#2f7bff;">✅ 支持缩放 · 高清显示</span>
+        </div>
+    </div>
+
+    <!-- ====== 弹窗 ====== -->
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title">
+                    📎 <span class="file-name-display" id="modalFileName">文件名称</span>
+                    <span class="badge">在线预览</span>
+                </div>
+                <button class="modal-close" id="modalCloseBtn">✕</button>
             </div>
-            <button class="modal-close" id="modalCloseBtn">✕</button>
-        </div>
-        <div class="modal-body">
-            <iframe id="modalPdfFrame" src="" title="PDF 在线预览"></iframe>
+            <div class="modal-body" id="pdfViewerBody">
+                <div class="pdf-canvas-wrapper">
+                    <div id="pdfLoading" class="pdf-loading">⏳ 正在加载 PDF...</div>
+                    <canvas id="pdfCanvas"></canvas>
+                </div>
+            </div>
+            <div class="pdf-controls" id="pdfControls">
+                <button id="prevPage">◀ 上一页</button>
+                <span class="page-info" id="pageInfo">1 / 1</span>
+                <button id="nextPage">下一页 ▶</button>
+                <div class="zoom-control">
+                    <button id="zoomOut">−</button>
+                    <span id="zoomLevel">100%</span>
+                    <button id="zoomIn">+</button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    (function() {
-        const PDF_BASE = 'pdf/';
-        const SITE_URL = 'https://123wanyou.github.io/fangji-pdf/';
+    <script>
+        (function() {
+            // 配置 PDF.js Worker
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const pdfFiles = [
-            { name: '辛温解表剂', file: 'xinwen.pdf.pdf' },
-            { name: '辛凉解表剂', file: 'xinliang.pdf.pdf' },
-            { name: '扶正解表剂', file: 'fuzheng.pdf.pdf' },
-            { name: '泻下剂', file: 'xiexia.pdf.pdf' },
-            { name: '和解剂', file: 'hejie.pdf.pdf' },
-            { name: '清热剂一', file: 'qingre1.pdf.pdf' },
-            { name: '清热剂二', file: 'qingre2.pdf.pdf' },
-            { name: '祛暑剂', file: 'qushu.pdf.pdf' },
-            { name: '温里剂', file: 'wenli.pdf.pdf' },
-            { name: '表里双解剂', file: 'biaoli.pdf.pdf' },
-            { name: '补益剂一', file: 'buyi1.pdf.pdf' },
-            { name: '补益剂二', file: 'buyi2.pdf.pdf' },
-            { name: '固涩剂', file: 'guse.pdf.pdf' },
-            { name: '安神剂', file: 'anshen.pdf.pdf' },
-            { name: '开窍剂', file: 'kaiqiao.pdf.pdf' },
-            { name: '理气剂', file: 'liqi.pdf.pdf' },
-            { name: '理血剂', file: 'lixue.pdf.pdf' },
-            { name: '治风剂', file: 'zhifeng.pdf.pdf' },
-            { name: '治燥剂', file: 'zhizao.pdf.pdf' },
-            { name: '祛湿剂', file: 'qushi.pdf.pdf' },
-            { name: '祛痰剂', file: 'qutan.pdf.pdf' },
-            { name: '消食剂', file: 'xiaoshi.pdf.pdf' },
-            { name: '驱虫剂涌吐剂', file: 'quchong.pdf.pdf' },
-            { name: '治痈疡剂', file: 'zhiyong.pdf.pdf' }
-        ];
+            const PDF_BASE = 'pdf/';
+            const SITE_URL = 'https://123wanyou.github.io/fangji-pdf/';
 
-        const grid = document.getElementById('pdfGrid');
-        const count = document.getElementById('fileCount');
-        const modal = document.getElementById('pdfModal');
-        const frame = document.getElementById('modalPdfFrame');
-        const fileName = document.getElementById('modalFileName');
-        const closeBtn = document.getElementById('modalCloseBtn');
+            const pdfFiles = [
+                { name: '辛温解表剂', file: 'xinwen.pdf.pdf' },
+                { name: '辛凉解表剂', file: 'xinliang.pdf.pdf' },
+                { name: '扶正解表剂', file: 'fuzheng.pdf.pdf' },
+                { name: '泻下剂', file: 'xiexia.pdf.pdf' },
+                { name: '和解剂', file: 'hejie.pdf.pdf' },
+                { name: '清热剂一', file: 'qingre1.pdf.pdf' },
+                { name: '清热剂二', file: 'qingre2.pdf.pdf' },
+                { name: '祛暑剂', file: 'qushu.pdf.pdf' },
+                { name: '温里剂', file: 'wenli.pdf.pdf' },
+                { name: '表里双解剂', file: 'biaoli.pdf.pdf' },
+                { name: '补益剂一', file: 'buyi1.pdf.pdf' },
+                { name: '补益剂二', file: 'buyi2.pdf.pdf' },
+                { name: '固涩剂', file: 'guse.pdf.pdf' },
+                { name: '安神剂', file: 'anshen.pdf.pdf' },
+                { name: '开窍剂', file: 'kaiqiao.pdf.pdf' },
+                { name: '理气剂', file: 'liqi.pdf.pdf' },
+                { name: '理血剂', file: 'lixue.pdf.pdf' },
+                { name: '治风剂', file: 'zhifeng.pdf.pdf' },
+                { name: '治燥剂', file: 'zhizao.pdf.pdf' },
+                { name: '祛湿剂', file: 'qushi.pdf.pdf' },
+                { name: '祛痰剂', file: 'qutan.pdf.pdf' },
+                { name: '消食剂', file: 'xiaoshi.pdf.pdf' },
+                { name: '驱虫剂涌吐剂', file: 'quchong.pdf.pdf' },
+                { name: '治痈疡剂', file: 'zhiyong.pdf.pdf' }
+            ];
 
-        function render() {
-            grid.innerHTML = '';
-            pdfFiles.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'pdf-card';
-                card.innerHTML = `
-                    <span class="pdf-icon">📄</span>
-                    <span class="pdf-name">${item.name}</span>
-                    <span class="pdf-badge">PDF</span>
-                `;
-                card.addEventListener('click', () => openModal(item.file, item.name));
-                grid.appendChild(card);
+            // DOM 元素
+            const grid = document.getElementById('pdfGrid');
+            const count = document.getElementById('fileCount');
+            const modal = document.getElementById('pdfModal');
+            const fileName = document.getElementById('modalFileName');
+            const closeBtn = document.getElementById('modalCloseBtn');
+            const canvas = document.getElementById('pdfCanvas');
+            const loading = document.getElementById('pdfLoading');
+            const controls = document.getElementById('pdfControls');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const zoomLevel = document.getElementById('zoomLevel');
+
+            let pdfDoc = null;
+            let currentPage = 1;
+            let totalPages = 0;
+            let currentScale = 1.8; // 基础缩放，提高清晰度
+            let maxScale = 3.5;
+            let minScale = 0.8;
+
+            // 渲染卡片列表
+            function renderCards() {
+                grid.innerHTML = '';
+                pdfFiles.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'pdf-card';
+                    card.innerHTML = `
+                        <span class="pdf-icon">📄</span>
+                        <span class="pdf-name">${item.name}</span>
+                        <span class="pdf-badge">PDF</span>
+                    `;
+                    card.addEventListener('click', () => openModal(item.file, item.name));
+                    grid.appendChild(card);
+                });
+                count.textContent = `共 ${pdfFiles.length} 个文件`;
+            }
+
+            // 打开弹窗并加载 PDF
+            function openModal(file, name) {
+                if (!file) return;
+
+                const pdfUrl = SITE_URL + PDF_BASE + encodeURIComponent(file);
+                fileName.textContent = name;
+
+                // 重置状态
+                controls.classList.remove('show');
+                loading.style.display = 'block';
+                loading.className = 'pdf-loading';
+                loading.textContent = '⏳ 正在加载 PDF...';
+                canvas.style.display = 'none';
+                currentScale = 1.8;
+                zoomLevel.textContent = Math.round(currentScale * 50) + '%';
+
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                pdfjsLib.getDocument(pdfUrl).promise
+                    .then(function(pdf) {
+                        pdfDoc = pdf;
+                        totalPages = pdf.numPages;
+                        currentPage = 1;
+                        controls.classList.add('show');
+                        renderPage(currentPage);
+                    })
+                    .catch(function(err) {
+                        console.error('PDF 加载失败:', err);
+                        loading.className = 'pdf-error';
+                        loading.textContent = '❌ PDF 加载失败，请检查文件是否存在或网络连接';
+                        controls.classList.remove('show');
+                    });
+            }
+
+            // 渲染指定页
+            function renderPage(pageNum) {
+                if (!pdfDoc) return;
+
+                pdfDoc.getPage(pageNum).then(function(page) {
+                    // 使用当前缩放比例
+                    const viewport = page.getViewport({ scale: currentScale });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const ctx = canvas.getContext('2d');
+                    const renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+
+                    loading.style.display = 'none';
+                    canvas.style.display = 'block';
+
+                    page.render(renderContext).promise.then(function() {
+                        pageInfo.textContent = `${pageNum} / ${totalPages}`;
+                        prevBtn.disabled = (pageNum <= 1);
+                        nextBtn.disabled = (pageNum >= totalPages);
+                        zoomLevel.textContent = Math.round(currentScale * 50) + '%';
+                    });
+                });
+            }
+
+            // 缩放功能
+            function updateZoom() {
+                if (!pdfDoc) return;
+                zoomLevel.textContent = Math.round(currentScale * 50) + '%';
+                renderPage(currentPage);
+            }
+
+            zoomInBtn.addEventListener('click', function() {
+                if (currentScale < maxScale) {
+                    currentScale = Math.min(currentScale + 0.3, maxScale);
+                    updateZoom();
+                }
             });
-            count.textContent = `共 ${pdfFiles.length} 个文件`;
-        }
 
-        function openModal(file, name) {
-            if (!file) return;
-            // 使用 Google PDF Viewer 实现在线预览（无需下载）
-            const pdfUrl = SITE_URL + PDF_BASE + encodeURIComponent(file);
-            const viewerUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(pdfUrl) + '&embedded=true';
-            console.log('📄 在线预览:', viewerUrl);
-            frame.src = viewerUrl;
-            fileName.textContent = name;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+            zoomOutBtn.addEventListener('click', function() {
+                if (currentScale > minScale) {
+                    currentScale = Math.max(currentScale - 0.3, minScale);
+                    updateZoom();
+                }
+            });
 
-        function closeModal() {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-            // 关闭时清空 iframe，避免残留
-            setTimeout(() => { frame.src = ''; }, 300);
-        }
+            // 关闭弹窗
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                pdfDoc = null;
+                canvas.style.display = 'none';
+                controls.classList.remove('show');
+                loading.style.display = 'block';
+                loading.className = 'pdf-loading';
+                loading.textContent = '⏳ 正在加载 PDF...';
+            }
 
-        closeBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+            // 事件绑定
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowRight' && pdfDoc && currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+                if (e.key === 'ArrowLeft' && pdfDoc && currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            });
 
-        render();
-        console.log('✅ 方剂学 PDF 在线预览已启动，共 ' + pdfFiles.length + ' 个文件');
-        console.log('📌 点击卡片即可在线查看 PDF，无需下载');
-    })();
-</script>
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage(currentPage);
+                }
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage(currentPage);
+                }
+            });
+
+            // 启动
+            renderCards();
+            console.log('✅ 方剂学 PDF 高清在线预览已启动，共 ' + pdfFiles.length + ' 个文件');
+            console.log('📌 使用 PDF.js 渲染，支持缩放，高清显示');
+        })();
+    </script>
+
 </body>
 </html>
